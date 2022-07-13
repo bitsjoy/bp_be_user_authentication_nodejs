@@ -1,11 +1,14 @@
 const express = require('express');
 const connectDB = require('./db_connection/Connection');
 // const json2xls = require('json2xls');
+const bodyParser = require("body-parser");
 
 var cors = require('cors')
 var app = express()
 
 app.use(cors())
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
