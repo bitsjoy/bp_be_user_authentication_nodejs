@@ -3,8 +3,7 @@ const Mineral = require('../models/Mineral');
 const router = express.Router();
 const tokenVerification = require('../middleware');
 
-require('dotenv').config();
-
+var request = require('request');
 
 
 // FILE UPLOAD and RETREIVE BEGIN
@@ -12,6 +11,9 @@ const AWS = require('aws-sdk');
 const fs = require('fs');
 const path = require('path');
 const upload = require('multer')();
+
+require('dotenv').config();
+
 
 router.post('/uploadImage', upload.any(), async (req, res) => {
     AWS.config.update({
