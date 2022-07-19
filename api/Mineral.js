@@ -15,38 +15,46 @@ const upload = require('multer')();
 require('dotenv').config();
 
 
-router.post('/uploadImage', upload.any(), async (req, res) => {
+router.post('/upload_id', tokenVerification, upload.any(), async (req, res) => {  
+ 
     AWS.config.update({
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-      });
+    });
+
+    console.log(process.env.AWS_ACCESS_KEY_ID);
     
     var s3 = new AWS.S3();
-    var filePath = "./assets/pot.pdf";
 
-      fs.writeFile('./assets/pot.pdf', req.files[0].buffer, function (err) {
+
+    const arr  = req.files[0].originalname.split('.');
+    const ext = arr.length != 0 ? arr[arr.length - 1] : '';
+
+    var filePath = `./assets/k${'.'+ext}`;
+    console.log(req.files[0]);
+    fs.writeFile(`./assets/k${'.'+ext}`, req.files[0].buffer, function (err) {
         if (err) throw err;               
         console.log('Results Received');
-      }); 
-      let targetFolderInBucket = "digivist";
+    }); 
+    let targetFolderInBucket = "id_cards";
     //configuring parameters
     var params = {
-      Bucket: 'bitsjoy-template-test',
-      Body : fs.createReadStream(filePath),
-      Key : targetFolderInBucket+"/"+"Date.now(;)"+"_"+path.basename(filePath),  // there is the folder name at the front, (folder in bucket)
+    Bucket: bucketName,
+    Body : fs.createReadStream(filePath),
+    Key : targetFolderInBucket+"/"+"Date.now(;)"+"_"+path.basename(filePath),  // there is the folder name at the front, (folder in bucket)
     };
     
     s3.upload(params, function (err, data) {
-      //handle error
-      if (err) {
+    //handle error
+    if (err) {
         console.log("Error", err);
-      }
+    }
     
-      //success
-      if (data) {
+    //success
+    if (data) {
         fs.unlinkSync(filePath);
         console.log("Uploaded in:", data.Location);
- 
+
             var item = req.body;
             var params = { Bucket: "bitsjoy-template-test", Key: targetFolderInBucket+"/"+"Date.now(;)"+"_"+path.basename(filePath)}; // keyname can be a filename
             s3.getObject(params, function (err, data) {
@@ -55,11 +63,11 @@ router.post('/uploadImage', upload.any(), async (req, res) => {
                 }
                 res.send({ data });
             });
-         
-      }
-    })
-
+        
+    }
 })
+});
+
 // FILE UPLOAD and RETREIVE END
 
 
